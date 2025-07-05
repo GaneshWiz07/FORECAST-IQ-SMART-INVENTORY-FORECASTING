@@ -1,6 +1,6 @@
 import React from 'react'
 import { SignIn } from '@clerk/clerk-react'
-import { BarChart3, Package, TrendingUp, Upload, Brain } from 'lucide-react'
+import { BarChart3, Package, TrendingUp, Upload, Calculator } from 'lucide-react'
 
 const Login = () => {
   return (
@@ -14,7 +14,7 @@ const Login = () => {
               <div className="bg-white/20 p-3 rounded-lg relative">
                 <div className="relative">
                   <TrendingUp className="w-8 h-8" />
-                  <Brain className="w-4 h-4 absolute -top-1 -right-1 opacity-90" />
+                  <Calculator className="w-4 h-4 absolute -top-1 -right-1 opacity-90" />
                 </div>
               </div>
               <div>
@@ -24,7 +24,7 @@ const Login = () => {
             </div>
             
             <h2 className="text-2xl font-semibold mb-4">
-              Smart Inventory Management with AI-Powered Forecasting
+              Smart Inventory Management with Statistical Forecasting
             </h2>
             
             <p className="text-primary-100 mb-8">
@@ -37,7 +37,7 @@ const Login = () => {
                 <div className="bg-white/20 p-2 rounded">
                   <TrendingUp className="w-5 h-5" />
                 </div>
-                <span>AI-powered demand forecasting</span>
+                <span>Statistical demand forecasting</span>
               </div>
               
               <div className="flex items-center space-x-3">

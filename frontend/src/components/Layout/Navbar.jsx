@@ -1,6 +1,6 @@
 import React from 'react'
 import { UserButton, useUser } from '@clerk/clerk-react'
-import { TrendingUp, Brain } from 'lucide-react'
+import { TrendingUp, BarChart3 } from 'lucide-react'
 
 const Navbar = () => {
   const { user } = useUser()
@@ -14,7 +14,7 @@ const Navbar = () => {
             <div className="bg-gradient-to-br from-blue-500 to-purple-600 p-2 rounded-lg relative">
               <div className="relative">
                 <TrendingUp className="w-6 h-6 text-white" />
-                <Brain className="w-3 h-3 text-white absolute -top-1 -right-1 opacity-80" />
+                <BarChart3 className="w-3 h-3 text-white absolute -top-1 -right-1 opacity-80" />
               </div>
             </div>
             <div>

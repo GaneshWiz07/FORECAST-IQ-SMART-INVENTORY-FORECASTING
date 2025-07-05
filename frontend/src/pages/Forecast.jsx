@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { 
   TrendingUp, 
-  Brain, 
+  Calculator, 
   Calendar, 
   Package, 
   AlertTriangle,
@@ -207,8 +207,8 @@ const Forecast = () => {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">AI Demand Forecast</h1>
-          <p className="text-gray-600">AI-powered demand forecasting and reorder suggestions</p>
+                <h1 className="text-3xl font-bold text-gray-900">Statistical Demand Forecast</h1>
+      <p className="text-gray-600">Statistical demand forecasting and reorder suggestions</p>
         </div>
         <div className="flex space-x-3">
           <button
@@ -269,7 +269,7 @@ const Forecast = () => {
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              AI Method
+              Method
             </label>
             <select
               value={forecastMethod}
@@ -295,7 +295,7 @@ const Forecast = () => {
                 </>
               ) : (
                 <>
-                  <Brain className="w-4 h-4" />
+                  <Calculator className="w-4 h-4" />
                   <span>Generate</span>
                 </>
               )}
@@ -604,11 +604,11 @@ const Forecast = () => {
         </div>
       )}
 
-      {/* Detailed AI Insights for Selected SKU */}
+      {/* Detailed Statistical Insights for Selected SKU */}
       {skuForecast && (
         <div className="card">
           <h3 className="text-lg font-semibold text-gray-900 mb-4">
-            AI Insights for {skuForecast.sku}
+            Statistical Insights for {skuForecast.sku}
           </h3>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -684,7 +684,7 @@ const Forecast = () => {
 
       {/* Method Information */}
       <div className="card">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">AI Forecasting Methods</h3>
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">Statistical Forecasting Methods</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           <div className="border border-gray-200 rounded-lg p-4">
                             <h4 className="font-medium text-gray-900 mb-2">Combined Statistical Methods</h4>

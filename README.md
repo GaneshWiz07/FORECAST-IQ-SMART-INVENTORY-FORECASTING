@@ -2,7 +2,7 @@
 
 <div align="center">
   <h3>📊 Statistical Inventory Management & Demand Forecasting</h3>
-  <p>Enterprise-grade inventory forecasting system powered by advanced statistical algorithms and machine learning techniques.</p>
+  <p>Enterprise-grade inventory forecasting system powered by advanced statistical algorithms and mathematical forecasting methods.</p>
 </div>
 
 ## 🚀 Features

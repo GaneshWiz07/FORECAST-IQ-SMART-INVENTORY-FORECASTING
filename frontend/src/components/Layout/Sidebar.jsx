@@ -38,7 +38,7 @@ const Sidebar = () => {
     {
       path: '/forecast',
       icon: TrendingUp,
-      label: 'AI Forecast',
+      label: 'Forecast',
       description: 'Demand predictions'
     }
   ]
@@ -172,7 +172,7 @@ const Sidebar = () => {
               Version 1.0.0
             </p>
             <p className="text-xs text-gray-400">
-              AI-Powered Inventory System
+              Statistical Inventory System
             </p>
           </div>
         </div>

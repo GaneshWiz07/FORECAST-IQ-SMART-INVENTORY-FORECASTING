@@ -163,7 +163,7 @@ const Dashboard = () => {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
-          <p className="text-gray-600">Welcome to your AI-powered inventory overview</p>
+          <p className="text-gray-600">Welcome to your statistical inventory overview</p>
         </div>
         <button
           onClick={loadDashboardData}
@@ -253,7 +253,7 @@ const Dashboard = () => {
                   stroke="#dc2626" 
                   strokeWidth={2}
                   strokeDasharray="5 5"
-                  name="AI Prediction"
+                  name="Statistical Prediction"
                 />
               </LineChart>
             </ResponsiveContainer>

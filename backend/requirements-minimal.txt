@@ -1,0 +1,11 @@
+# Minimal requirements without Prophet for fallback forecasting
+# Use this if Prophet installation fails
+
+pandas>=2.0.0
+numpy>=1.24.0
+scikit-learn>=1.3.0
+scipy>=1.10.0
+
+# Basic dependencies
+setuptools>=68.0.0
+wheel>=0.40.0 

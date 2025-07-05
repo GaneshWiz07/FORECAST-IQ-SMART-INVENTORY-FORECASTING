@@ -1,18 +1,18 @@
 # ForecastIQ - Smart Inventory Forecasting
 
 <div align="center">
-  <h3>📊 Statistical Inventory Management & Demand Forecasting</h3>
-  <p>Enterprise-grade inventory forecasting system powered by advanced statistical algorithms.</p>
+  <h3>🧠 AI-Powered Inventory Management & Demand Forecasting</h3>
+  <p>Enterprise-grade inventory forecasting system powered by Facebook Prophet and advanced machine learning algorithms.</p>
 </div>
 
 ## 🚀 Features
 
 ### 🔮 Advanced Forecasting
-- **Multiple Statistical Methods** - Linear regression, exponential smoothing, seasonal naive
-- **Combined Forecasting** - Ensemble methods for improved accuracy
+- **Facebook Prophet Integration** - Industry-leading time series forecasting
+- **Multiple Forecasting Methods** - Linear regression, exponential smoothing, seasonal naive
 - **Automatic Seasonality Detection** - Daily, weekly, and yearly patterns
 - **Uncertainty Intervals** - Confidence scores and prediction ranges
-- **Smart Fallbacks** - Graceful degradation when data is limited
+- **Smart Fallbacks** - Graceful degradation when advanced models fail
 
 ### 📊 Real-Time Analytics
 - **Dynamic Dashboard** - Live inventory metrics and trends
@@ -36,8 +36,8 @@
 
 ### Backend
 - **Node.js** with Express.js
+- **Python** with Facebook Prophet
 - **PostgreSQL** (Supabase)
-- **Statistical Libraries** - Simple Statistics for forecasting
 - **JWT Authentication**
 
 ### Frontend
@@ -55,19 +55,21 @@
 
 ### Prerequisites
 - Node.js 18+ and npm
+- Python 3.8+ with pip
 - PostgreSQL database (or Supabase account)
 - Clerk account for authentication
 
 ### 1. Clone Repository
 ```bash
 git clone <your-repo-url>
-cd FORECAST-IQ-SMART-INVENTORY-FORECASTING
+cd AI-INVENTORY-MANAGEMENT-SYSTEM
 ```
 
 ### 2. Backend Setup
 ```bash
 cd backend
 npm install
+pip install -r requirements.txt
 ```
 
 ### 3. Frontend Setup
@@ -120,9 +122,10 @@ cd frontend && npm run dev
 ### Backend Deployment
 1. Create a new **Web Service** on Render
 2. Connect your repository
-3. Set build command: `cd backend && npm install`
+3. Set build command: `cd backend && npm install && pip install -r requirements.txt`
 4. Set start command: `cd backend && npm start`
 5. Add environment variables from your `.env` file
+6. Set Python version to 3.8+ in environment variables
 
 ### Frontend Deployment
 1. Create a new **Static Site** on Render
@@ -145,9 +148,10 @@ ForecastIQ/
 │   │   ├── config/         # Database configuration
 │   │   ├── middleware/     # Authentication middleware
 │   │   ├── routes/         # API endpoints
-│   │   ├── services/       # Business logic services
+│   │   ├── services/       # Business logic & Prophet service
 │   │   └── server.js       # Express server
 │   ├── database-schema.sql # Database schema with RLS
+│   ├── requirements.txt    # Python dependencies
 │   └── package.json        # Node.js dependencies
 ├── frontend/               # React application
 │   ├── src/
@@ -190,7 +194,7 @@ ForecastIQ/
 ### 2. Generate Forecasts
 - Go to the Forecast page
 - Select your preferred forecasting method:
-  - **Combined Statistical Methods**: Advanced ensemble forecasting (recommended)
+  - **Facebook Prophet model - AI**: Advanced ML forecasting
   - **Linear Regression**: Statistical trend analysis
   - **Exponential Smoothing**: Weighted historical average
   - **Seasonal Naive**: Pattern-based prediction
@@ -242,6 +246,6 @@ For support and questions:
 ---
 
 <div align="center">
-  <p>Built with ❤️ using React, Node.js</p>
+  <p>Built with ❤️ using React, Node.js, and Facebook Prophet</p>
   <p><strong>ForecastIQ</strong> - Smart Inventory Forecasting</p>
 </div> 

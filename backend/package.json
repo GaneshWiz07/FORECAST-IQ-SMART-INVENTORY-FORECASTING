@@ -30,8 +30,9 @@
   },
   "keywords": [
     "inventory",
+    "ai",
     "forecasting",
-    "statistics",
+    "prophet",
     "nodejs",
     "express"
   ],

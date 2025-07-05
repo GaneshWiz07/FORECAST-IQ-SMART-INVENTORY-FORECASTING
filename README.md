@@ -1,5 +1,5 @@
 # ForecastIQ - Smart Inventory Forecasting
-
+**LIVE SITE**-[https://forecast-iq.onrender.com/](https://forecast-iq.onrender.com/)
 <div align="center">
   <h3>📊 Statistical Inventory Management & Demand Forecasting</h3>
   <p>Enterprise-grade inventory forecasting system powered by advanced statistical algorithms and mathematical forecasting methods.</p>

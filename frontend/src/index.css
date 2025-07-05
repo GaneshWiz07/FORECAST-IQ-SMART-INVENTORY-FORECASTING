@@ -58,13 +58,49 @@
   .clerk-dev-banner,
   .clerk-development-banner,
   [data-clerk-dev-banner],
-  .cl-dev-banner {
+  .cl-dev-banner,
+  .cl-internal-banner {
+    @apply !hidden;
+  }
+  
+  /* Hide development mode indicators in user profile */
+  .cl-userButtonPopover .cl-userButtonPopoverFooter,
+  .cl-userProfile .cl-profileSectionPrimaryButton[data-localization-key*="development"],
+  .cl-internal-*,
+  [data-clerk-appearance*="development"],
+  .cl-badge[data-localization-key*="development"] {
     @apply !hidden;
   }
   
   /* Hide any Clerk footer links that might show development info */
   .cl-footer-action,
-  .cl-footer-action-link {
+  .cl-footer-action-link,
+  .cl-footerAction,
+  .cl-footerActionLink {
+    @apply !hidden;
+  }
+  
+  /* Hide development environment indicators */
+  [class*="development"],
+  [class*="dev-mode"],
+  .cl-badge:contains("Development") {
+    @apply !hidden;
+  }
+  
+  /* Additional specific hiding for Clerk development indicators */
+  .cl-userButton__popoverCard .cl-userButton__popoverFooter,
+  .cl-userPreview__identifier[data-identifier-type="development"],
+  .cl-internal-b3fm6y,
+  .cl-organizationSwitcher__popoverFooter,
+  .cl-organizationPreview__identifier[data-identifier-type="development"] {
+    @apply !hidden;
+  }
+  
+  /* Hide any text containing "development" or "dev" */
+  *[class*="cl-"]:has-text("Development"),
+  *[class*="cl-"]:has-text("development"),
+  *[class*="cl-"]:has-text("Dev"),
+  *[class*="cl-"]:has-text("dev") {
     @apply !hidden;
   }
 }

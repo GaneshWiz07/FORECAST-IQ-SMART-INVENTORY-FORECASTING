@@ -40,9 +40,14 @@ const Navbar = () => {
                 appearance={{
                   elements: {
                     avatarBox: 'w-10 h-10',
+                    userButtonPopoverCard: 'shadow-lg',
+                    userButtonPopoverActionButton: 'text-sm',
+                    userButtonPopoverFooter: 'hidden', // Hide footer that might contain dev info
                   }
                 }}
                 afterSignOutUrl="/login"
+                userProfileMode="navigation"
+                userProfileUrl="/user-profile"
               />
             </div>
           </div>

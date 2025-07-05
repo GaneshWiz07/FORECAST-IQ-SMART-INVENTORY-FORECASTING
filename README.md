@@ -1,4 +1,4 @@
-# ForecastIQ - Smart Inventory Forecasting
+H# ForecastIQ - Smart Inventory Forecasting
 
 <div align="center">
   <h3>📊 Statistical Inventory Management & Demand Forecasting</h3>

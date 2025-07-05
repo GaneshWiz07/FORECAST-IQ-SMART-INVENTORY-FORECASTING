@@ -3,19 +3,15 @@ import { requireAuth } from '../middleware/auth.js';
 import { dbHelpers } from '../config/database.js';
 import { addDays, format, parseISO, subDays } from 'date-fns';
 import { mean, standardDeviation, linearRegression, linearRegressionLine } from 'simple-statistics';
-import prophetService from '../services/prophetService.js';
 
 const router = express.Router();
 
 // Apply authentication to all forecast routes
 router.use(requireAuth);
 
-// Get available forecasting methods and Prophet status
+// Get available forecasting methods
 router.get('/methods', async (req, res) => {
   try {
-    const prophetAvailable = await prophetService.isAvailable();
-    const prophetInfo = prophetService.getModelInfo();
-    
     res.json({
       success: true,
       data: {
@@ -36,23 +32,12 @@ router.get('/methods', async (req, res) => {
             available: true
           },
           combined: {
-            name: 'Facebook Prophet model - AI',
-            description: 'Advanced AI forecasting with Prophet integration and fallback methods',
+            name: 'Combined Statistical Methods',
+            description: 'Advanced statistical forecasting using multiple algorithms',
             available: true
-          },
-          prophet: {
-            name: prophetInfo.name,
-            description: prophetInfo.description,
-            available: prophetAvailable,
-            features: prophetInfo.features,
-            parameters: prophetInfo.parameters
           }
         },
-        recommended: prophetAvailable ? 'prophet' : 'combined',
-        prophetStatus: {
-          available: prophetAvailable,
-          version: prophetInfo.version
-        }
+        recommended: 'combined'
       }
     });
   } catch (error) {
@@ -64,7 +49,7 @@ router.get('/methods', async (req, res) => {
   }
 });
 
-// Simple forecasting algorithms (fallback when Prophet is not available)
+// Statistical forecasting algorithms
 class SimpleForecast {
   // Moving average forecast
   static movingAverage(data, periods = 7) {
@@ -232,57 +217,29 @@ router.post('/generate/:sku', async (req, res) => {
     // Prepare time series data
     const timeSeries = prepareSalesData(salesData);
     
-    // Try Prophet first, fallback to simple methods
+    // Generate forecast using statistical methods
     let forecast;
     let forecastMethod = method;
     let modelInfo = null;
-    let prophetUsed = false;
 
-    if (method === 'prophet' || method === 'combined') {
-      try {
-        console.log('Attempting Prophet forecast...');
-        const prophetResult = await prophetService.generateForecast(salesData, forecastDays);
-        
-        if (prophetResult.success) {
-          // Extract forecast values from Prophet result
-          forecast = prophetResult.forecast.map(item => item.predicted_demand);
-          modelInfo = prophetResult.model_info;
-          forecastMethod = 'prophet';
-          prophetUsed = true;
-          console.log('Prophet forecast successful');
-        } else {
-          console.log('Prophet failed, using fallback:', prophetResult.error);
-          throw new Error(prophetResult.error);
-        }
-      } catch (prophetError) {
-        console.log('Prophet unavailable, using simple methods:', prophetError.message);
-        // Fall back to simple methods
+    switch (method) {
+      case 'linear':
+        forecast = SimpleForecast.linearTrend(timeSeries, forecastDays);
+        forecastMethod = 'linear';
+        break;
+      case 'exponential':
+        forecast = SimpleForecast.exponentialSmoothing(timeSeries, 0.3, forecastDays);
+        forecastMethod = 'exponential';
+        break;
+      case 'seasonal':
+        forecast = SimpleForecast.seasonalNaive(timeSeries, 7, forecastDays);
+        forecastMethod = 'seasonal';
+        break;
+      case 'combined':
+      default:
+        forecast = SimpleForecast.combinedForecast(timeSeries, forecastDays);
         forecastMethod = 'combined';
-      }
-    }
-
-    // Use simple methods if Prophet failed or wasn't requested
-    if (!prophetUsed) {
-      switch (method) {
-        case 'linear':
-          forecast = SimpleForecast.linearTrend(timeSeries, forecastDays);
-          forecastMethod = 'linear';
-          break;
-        case 'exponential':
-          forecast = SimpleForecast.exponentialSmoothing(timeSeries, 0.3, forecastDays);
-          forecastMethod = 'exponential';
-          break;
-        case 'seasonal':
-          forecast = SimpleForecast.seasonalNaive(timeSeries, 7, forecastDays);
-          forecastMethod = 'seasonal';
-          break;
-        case 'prophet':
-        case 'combined':
-        default:
-          forecast = SimpleForecast.combinedForecast(timeSeries, forecastDays);
-          forecastMethod = 'combined';
-          break;
-      }
+        break;
     }
     
     // Ensure forecast is an array
@@ -343,8 +300,8 @@ router.post('/generate/:sku', async (req, res) => {
         predicted_date: item.date,
         predicted_demand: item.predicted_demand,
         forecast_date: new Date().toISOString(),
-        // Add Prophet-specific fields if available
-        confidence_score: prophetUsed ? 0.8 : 0.5,
+        // Add confidence score based on method
+        confidence_score: forecastMethod === 'combined' ? 0.7 : 0.5,
       }));
       
       await dbHelpers.saveForecast(userId, forecastRecords);
@@ -359,7 +316,6 @@ router.post('/generate/:sku', async (req, res) => {
         sku,
         method: forecastMethod,
         requestedMethod: method,
-        prophetUsed,
         forecastPeriod: {
           days: forecastDays,
           startDate: forecastData[0]?.date,

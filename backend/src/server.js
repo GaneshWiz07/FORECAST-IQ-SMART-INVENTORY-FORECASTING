@@ -105,7 +105,7 @@ app.use('*', (req, res) => {
 app.listen(PORT, async () => {
   console.log(`🚀 Server running on http://localhost:${PORT}`);
   console.log(`📊 Environment: ${process.env.NODE_ENV}`);
-  console.log(`🔒 CORS enabled for: ${allowedOrigins.join(', ')}`);
+  console.log(`🔒 CORS enabled for: All origins (*)`);
   
   // Test database connection
   console.log('🔍 Testing database connection...');

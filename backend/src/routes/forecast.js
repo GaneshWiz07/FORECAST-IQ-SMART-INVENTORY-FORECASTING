@@ -3,19 +3,15 @@ import { requireAuth } from '../middleware/auth.js';
 import { dbHelpers } from '../config/database.js';
 import { addDays, format, parseISO, subDays } from 'date-fns';
 import { mean, standardDeviation, linearRegression, linearRegressionLine } from 'simple-statistics';
-import prophetService from '../services/prophetService.js';
 
 const router = express.Router();
 
 // Apply authentication to all forecast routes
 router.use(requireAuth);
 
-// Get available forecasting methods and Prophet status
+// Get available forecasting methods
 router.get('/methods', async (req, res) => {
   try {
-    const prophetAvailable = await prophetService.isAvailable();
-    const prophetInfo = prophetService.getModelInfo();
-    
     res.json({
       success: true,
       data: {
@@ -36,23 +32,12 @@ router.get('/methods', async (req, res) => {
             available: true
           },
           combined: {
-            name: 'Facebook Prophet model - AI',
-            description: 'Advanced AI forecasting with Prophet integration and fallback methods',
+            name: 'Combined Statistical Methods',
+            description: 'Advanced statistical forecasting using multiple methods',
             available: true
-          },
-          prophet: {
-            name: prophetInfo.name,
-            description: prophetInfo.description,
-            available: prophetAvailable,
-            features: prophetInfo.features,
-            parameters: prophetInfo.parameters
           }
         },
-        recommended: prophetAvailable ? 'prophet' : 'combined',
-        prophetStatus: {
-          available: prophetAvailable,
-          version: prophetInfo.version
-        }
+        recommended: 'combined'
       }
     });
   } catch (error) {
@@ -232,37 +217,10 @@ router.post('/generate/:sku', async (req, res) => {
     // Prepare time series data
     const timeSeries = prepareSalesData(salesData);
     
-    // Try Prophet first, fallback to simple methods
-    let forecast;
-    let forecastMethod = method;
-    let modelInfo = null;
-    let prophetUsed = false;
+          // Generate forecast using selected method
+      let forecast;
+      let forecastMethod = method;
 
-    if (method === 'prophet' || method === 'combined') {
-      try {
-        console.log('Attempting Prophet forecast...');
-        const prophetResult = await prophetService.generateForecast(salesData, forecastDays);
-        
-        if (prophetResult.success) {
-          // Extract forecast values from Prophet result
-          forecast = prophetResult.forecast.map(item => item.predicted_demand);
-          modelInfo = prophetResult.model_info;
-          forecastMethod = 'prophet';
-          prophetUsed = true;
-          console.log('Prophet forecast successful');
-        } else {
-          console.log('Prophet failed, using fallback:', prophetResult.error);
-          throw new Error(prophetResult.error);
-        }
-      } catch (prophetError) {
-        console.log('Prophet unavailable, using simple methods:', prophetError.message);
-        // Fall back to simple methods
-        forecastMethod = 'combined';
-      }
-    }
-
-    // Use simple methods if Prophet failed or wasn't requested
-    if (!prophetUsed) {
       switch (method) {
         case 'linear':
           forecast = SimpleForecast.linearTrend(timeSeries, forecastDays);
@@ -276,116 +234,113 @@ router.post('/generate/:sku', async (req, res) => {
           forecast = SimpleForecast.seasonalNaive(timeSeries, 7, forecastDays);
           forecastMethod = 'seasonal';
           break;
-        case 'prophet':
         case 'combined':
         default:
           forecast = SimpleForecast.combinedForecast(timeSeries, forecastDays);
           forecastMethod = 'combined';
           break;
       }
-    }
-    
-    // Ensure forecast is an array
-    if (!Array.isArray(forecast)) {
-      console.error('Forecast is not an array:', forecast);
-      forecast = Array(forecastDays).fill(forecast || 0);
-    }
-
-    // Generate forecast dates
-    const today = new Date();
-    const forecastData = forecast.map((value, index) => ({
-      date: format(addDays(today, index + 1), 'yyyy-MM-dd'),
-      predicted_demand: value,
-      sku,
-    }));
-    
-    // Calculate statistics
-    const totalPredictedDemand = forecast.reduce((sum, value) => sum + value, 0);
-    const avgDailyDemand = totalPredictedDemand / forecastDays;
-    const historicalAvg = timeSeries.length > 0 ? mean(timeSeries) : 0;
-    
-    // Get current inventory for reorder suggestions
-    let currentInventory = null;
-    let reorderSuggestion = null;
-    
-    try {
-      currentInventory = await dbHelpers.getInventoryBySku(userId, sku);
-      const currentStock = currentInventory.quantity;
-      const reorderLevel = currentInventory.reorder_level;
       
-      // Calculate reorder suggestion
-      if (totalPredictedDemand > currentStock) {
-        const suggestedReorder = Math.ceil(totalPredictedDemand - currentStock + reorderLevel);
-        reorderSuggestion = {
-          needed: true,
-          currentStock,
-          predictedDemand: totalPredictedDemand,
-          suggestedQuantity: suggestedReorder,
-          daysUntilStockout: Math.floor(currentStock / (avgDailyDemand || 1)),
-          priority: currentStock <= reorderLevel ? 'high' : 'medium',
-        };
-      } else {
-        reorderSuggestion = {
-          needed: false,
-          currentStock,
-          predictedDemand: totalPredictedDemand,
-          daysOfStock: Math.floor(currentStock / (avgDailyDemand || 1)),
-        };
+      // Ensure forecast is an array
+      if (!Array.isArray(forecast)) {
+        console.error('Forecast is not an array:', forecast);
+        forecast = Array(forecastDays).fill(forecast || 0);
       }
-    } catch (inventoryError) {
-      console.log(`No inventory data found for SKU: ${sku}`);
-    }
-    
-    // Save forecast to database (optional)
-    try {
-      const forecastRecords = forecastData.map(item => ({
-        sku: item.sku,
-        predicted_date: item.date,
-        predicted_demand: item.predicted_demand,
-        forecast_date: new Date().toISOString(),
-        // Add Prophet-specific fields if available
-        confidence_score: prophetUsed ? 0.8 : 0.5,
+
+      // Generate forecast dates
+      const today = new Date();
+      const forecastData = forecast.map((value, index) => ({
+        date: format(addDays(today, index + 1), 'yyyy-MM-dd'),
+        predicted_demand: value,
+        sku,
       }));
       
-      await dbHelpers.saveForecast(userId, forecastRecords);
-    } catch (saveError) {
-      console.error('Error saving forecast:', saveError);
-      // Continue even if save fails - forecast generation should still succeed
-    }
-    
-    res.json({
-      success: true,
-      data: {
-        sku,
-        method: forecastMethod,
-        requestedMethod: method,
-        prophetUsed,
-        forecastPeriod: {
-          days: forecastDays,
-          startDate: forecastData[0]?.date,
-          endDate: forecastData[forecastData.length - 1]?.date,
-        },
-        historical: {
-          totalRecords: salesData.length,
-          averageDailyDemand: Math.round(historicalAvg * 100) / 100,
-          totalHistoricalSales: salesData.reduce((sum, record) => sum + record.units_sold, 0),
-        },
-        forecast: forecastData,
-        summary: {
-          totalPredictedDemand,
-          averageDailyDemand: Math.round(avgDailyDemand * 100) / 100,
-          peakDay: forecastData.reduce((max, current) => 
-            current.predicted_demand > max.predicted_demand ? current : max
-          ),
-        },
-        modelInfo: modelInfo || {
+      // Calculate statistics
+      const totalPredictedDemand = forecast.reduce((sum, value) => sum + value, 0);
+      const avgDailyDemand = totalPredictedDemand / forecastDays;
+      const historicalAvg = timeSeries.length > 0 ? mean(timeSeries) : 0;
+      
+      // Get current inventory for reorder suggestions
+      let currentInventory = null;
+      let reorderSuggestion = null;
+      
+      try {
+        currentInventory = await dbHelpers.getInventoryBySku(userId, sku);
+        const currentStock = currentInventory.quantity;
+        const reorderLevel = currentInventory.reorder_level;
+        
+        // Calculate reorder suggestion
+        if (totalPredictedDemand > currentStock) {
+          const suggestedReorder = Math.ceil(totalPredictedDemand - currentStock + reorderLevel);
+          reorderSuggestion = {
+            needed: true,
+            currentStock,
+            predictedDemand: totalPredictedDemand,
+            suggestedQuantity: suggestedReorder,
+            daysUntilStockout: Math.floor(currentStock / (avgDailyDemand || 1)),
+            priority: currentStock <= reorderLevel ? 'high' : 'medium',
+          };
+        } else {
+          reorderSuggestion = {
+            needed: false,
+            currentStock,
+            predictedDemand: totalPredictedDemand,
+            daysOfStock: Math.floor(currentStock / (avgDailyDemand || 1)),
+          };
+        }
+      } catch (inventoryError) {
+        console.log(`No inventory data found for SKU: ${sku}`);
+      }
+      
+      // Save forecast to database (optional)
+      try {
+        const forecastRecords = forecastData.map(item => ({
+          sku: item.sku,
+          predicted_date: item.date,
+          predicted_demand: item.predicted_demand,
+          forecast_date: new Date().toISOString(),
+          // Add Prophet-specific fields if available
+          confidence_score: 0.5,
+        }));
+        
+        await dbHelpers.saveForecast(userId, forecastRecords);
+      } catch (saveError) {
+        console.error('Error saving forecast:', saveError);
+        // Continue even if save fails - forecast generation should still succeed
+      }
+      
+      res.json({
+        success: true,
+        data: {
+          sku,
           method: forecastMethod,
-          description: 'Simple statistical forecasting methods'
+          requestedMethod: method,
+          forecastPeriod: {
+            days: forecastDays,
+            startDate: forecastData[0]?.date,
+            endDate: forecastData[forecastData.length - 1]?.date,
+          },
+          historical: {
+            totalRecords: salesData.length,
+            averageDailyDemand: Math.round(historicalAvg * 100) / 100,
+            totalHistoricalSales: salesData.reduce((sum, record) => sum + record.units_sold, 0),
+          },
+          forecast: forecastData,
+          summary: {
+            totalPredictedDemand,
+            averageDailyDemand: Math.round(avgDailyDemand * 100) / 100,
+            peakDay: forecastData.reduce((max, current) => 
+              current.predicted_demand > max.predicted_demand ? current : max
+            ),
+          },
+          modelInfo: {
+            method: forecastMethod,
+            description: 'Statistical forecasting methods'
+          },
+          reorderSuggestion,
+          generatedAt: new Date().toISOString(),
         },
-        reorderSuggestion,
-        generatedAt: new Date().toISOString(),
-      },
-    });
+      });
   } catch (error) {
     console.error('Error generating forecast:', error);
     res.status(500).json({

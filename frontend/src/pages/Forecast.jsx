@@ -276,7 +276,7 @@ const Forecast = () => {
               onChange={(e) => setForecastMethod(e.target.value)}
               className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-primary-500 focus:border-transparent"
             >
-                              <option value="combined">Facebook Prophet model - AI</option>
+                              <option value="combined">Combined Statistical Methods</option>
               <option value="linear">Linear Trend</option>
               <option value="exponential">Exponential Smoothing</option>
               <option value="seasonal">Seasonal Naive</option>
@@ -687,10 +687,10 @@ const Forecast = () => {
         <h3 className="text-lg font-semibold text-gray-900 mb-4">AI Forecasting Methods</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           <div className="border border-gray-200 rounded-lg p-4">
-                            <h4 className="font-medium text-gray-900 mb-2">Facebook Prophet model - AI</h4>
-            <p className="text-sm text-gray-600">
-              Advanced AI forecasting using Facebook Prophet with automatic seasonality detection and fallback methods. Recommended for most use cases.
-            </p>
+                                            <h4 className="font-medium text-gray-900 mb-2">Combined Statistical Methods</h4>
+                <p className="text-sm text-gray-600">
+                  Advanced statistical forecasting using multiple methods including linear regression, exponential smoothing, and seasonal patterns. Recommended for most use cases.
+                </p>
           </div>
           <div className="border border-gray-200 rounded-lg p-4">
             <h4 className="font-medium text-gray-900 mb-2">Linear Trend</h4>
